@@ -3,7 +3,7 @@
     {
       "name": "Compile",
       "setup": "",
-      "run": "make compile",
+      "run": "make test",
       "input": "",
       "output": "",
       "comparison": "exact",
