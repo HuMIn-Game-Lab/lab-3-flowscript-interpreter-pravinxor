@@ -1,0 +1,36 @@
+\documentclass{article}
+\usepackage{fancyhdr}
+\usepackage[margin=1in]{geometry}
+\usepackage{svg}
+\usepackage{graphicx}
+
+\pagestyle{fancy}
+\lhead{Pravin Ramana}
+\rhead{CS3341 Foundations of Modern Computing Fall 2023}
+\renewcommand{\headrulewidth}{0pt}
+
+\begin{document}
+\section*{FlowScript Interpeter Report}
+	\subsection{Rules for lexical and syntax parsing}
+		Both the lexer and parser of the flowscript interpeter are using handmade parsers, with a simple system to parse rules.
+		\subsubsection{Lexer}
+			The lexer is a basic state machine that reads the raw input string, character-by-character. The types of tokens include: Arrow, Open/closed  brackets and braces, Comma, Equals, Semicolon, Variable text, Reserved text, made up of dot-reserved keys. The lexer strictly reads character by character, however it saves the state of previous characters to enable features, such as escape characters.
+		\subsubsection{Parser}
+			The parser uses handwritten rules to parse tokens directly from the lexer. The parser takes these tokens and builds out an execution graph using the petgraph library. This stores every possible execution state within a directed graph, and can be read from in parallel. There are multiple states within the parser, however there are 3 main states. First, the parser searches for the \texttt{Digraph} (with an optional graph name). Next the parser reads line by line, searching for two types of statements. The first statement type, represents and attribute, for example \texttt{make[data="\{\}"]}, which stores the \texttt{data} attribute, storing a JSON within the \texttt{make} node. The other type of statement is a directive, which defines what the next state should be, for example: \texttt{make -> clang\_parse}. Additionally, multiple directives may be added for a single source process. They will be stored in the order they were declared and are jumped to based on the \texttt{"status"} code returned by a process/job. Each statement is delimited by a semicolon.
+	\subsection{Error types}
+		Errors will occur in the form of an unexpected token along with the upcoming context.
+		
+		\textbf{Multiple statements on the same line}
+		\begin{verbatim}
+		digraph {
+		    make[shape=rectangle,data="{\"input\":{\"target\" : \"test\"}}"];
+    
+		    make->clang\_parse
+		    make->print\_error;
+		}
+    	\end{verbatim}
+
+		This would yield: \texttt{Error: "Unexpected token sequence: [Text("make"), Arrow, Text("clang\_parse"), Text("make"), Arrow, Text("print\_error")]"}
+		Because the parser expects every statement to be delimited by a semicolon token, the upcoming token sequence is printed out to let the programmer know there the error occurred.
+
+\end{document}
