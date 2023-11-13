@@ -18,7 +18,7 @@
 		\subsubsection{Parser}
 			The parser uses handwritten rules to parse tokens directly from the lexer. The parser takes these tokens and builds out an execution graph using the petgraph library. This stores every possible execution state within a directed graph, and can be read from in parallel. There are multiple states within the parser, however there are 3 main states. First, the parser searches for the \texttt{Digraph} (with an optional graph name). Next the parser reads line by line, searching for two types of statements. The first statement type, represents and attribute, for example \texttt{make[data="\{\}"]}, which stores the \texttt{data} attribute, storing a JSON within the \texttt{make} node. The other type of statement is a directive, which defines what the next state should be, for example: \texttt{make -> clang\_parse}. Additionally, multiple directives may be added for a single source process. They will be stored in the order they were declared and are jumped to based on the \texttt{"status"} code returned by a process/job. Each statement is delimited by a semicolon.
 	\subsection{Error types}
-		Errors will occur in the form of an unexpected token along with the upcoming context.
+		Errors will occur in the form of an unexpected token along with the upcoming context. \\ \\
 		
 		\textbf{Multiple statements on the same line}
 		\begin{verbatim}
@@ -32,5 +32,34 @@
 
 		This would yield: \texttt{Error: "Unexpected token sequence: [Text("make"), Arrow, Text("clang\_parse"), Text("make"), Arrow, Text("print\_error")]"}
 		Because the parser expects every statement to be delimited by a semicolon token, the upcoming token sequence is printed out to let the programmer know there the error occurred.
+
+		To fix this, a semicolon is required after \texttt{clang\_parse}:
+		\begin{verbatim}
+		digraph {
+		    make[shape=rectangle,data="{\"input\":{\"target\" : \"test\"}}"];
+    
+		    make->clang\_parse;
+		    make->print\_error;
+		}
+    	\end{verbatim}
+
+		
+
+		\textbf{Incorrect opening to digraph}
+		\begin{verbatim}
+		digraph 
+		    make[shape=rectangle,data="{\"input\":{\"target\" : \"test\"}}"];
+		}
+		\end{verbatim}
+		This would yield: \texttt{Error: "Unexpected token sequence: [Bracket(Open), ReservedText(Shape), Equals, Text("rectangle"), Comma, ReservedText(Data), Equals, Text("{"input":{"target" : "test"}}"), Bracket(Closed)]"}
+		Because an opening brace is expected, the parser will mistakingly extract all tokens up to thesemicolon, before producing the error.
+
+		To fix this, the user must add the opening brace after \texttt{digraph}:
+
+		\begin{verbatim}
+		digraph {
+		    make[shape=rectangle,data="{\"input\":{\"target\" : \"test\"}}"];
+		}
+		\end{verbatim}		
 
 \end{document}
