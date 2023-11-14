@@ -60,6 +60,25 @@
 		digraph {
 		    make[shape=rectangle,data="{\"input\":{\"target\" : \"test\"}}"];
 		}
-		\end{verbatim}		
+		\end{verbatim}
 
+		
+		\textbf{Silently failing}
+
+		Most errors in the current state of the FlowScript interpreter will be silently ignored. For example: Unbalanced brackets are often ignored by the interpreter and exist to comply with DOT. Addtionally, errors may occur silently, such as when jobs are not registered with the system. For example:
+		\begin{verbatim}
+		digraph {
+		    mke[shape=rectangle,data="{\"input\":{\"target\" : \"test\"}}"];
+		}
+		\end{verbatim}
+		will silently fail (as \texttt{mke} is not registered with the jobsystem).
+		The solution to this type of error is to evaluate the flowscript and find the job that is not registered.
+		The fix would be to rename the job:
+		\begin{verbatim}
+		digraph {
+		    mke[shape=rectangle,data="{\"input\":{\"target\" : \"test\"}}"];
+		}
+		\end{verbatim}
+
+		
 \end{document}
